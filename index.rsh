@@ -48,6 +48,7 @@ export const main =
         race(A, B).publish();
         transfer(wager).to(A);
         transfer(wager).to(B);
+        informTimeout();
         commit();
         exit();
       });
@@ -65,6 +66,7 @@ export const main =
           race(B, C).publish();
           transfer(balance() / 2).to(B);
           transfer(balance()).to(C);
+          informTimeout();
           commit();
           exit();
         });
@@ -79,6 +81,7 @@ export const main =
           race(A, C).publish();
           transfer(balance() / 2).to(A);
           transfer(balance()).to(C);
+          informTimeout();
           commit();
           exit();
         });
@@ -92,6 +95,7 @@ export const main =
           race(A, B).publish();
           transfer(balance() / 2).to(A);
           transfer(balance()).to(B);
+          informTimeout();
           commit();
           exit();
         });
@@ -103,6 +107,7 @@ export const main =
           race(B, C).publish();
           transfer(balance() / 2).to(B);
           transfer(balance()).to(C);
+          informTimeout();
           commit();
           exit();
         });;
@@ -115,6 +120,7 @@ export const main =
           race(A, C).publish();
           transfer(balance() / 2).to(A);
           transfer(balance()).to(C);
+          informTimeout();
           commit();
           exit();
         });
