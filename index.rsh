@@ -39,12 +39,18 @@ export const main =
 
       B.only(() => {
         interact.acceptWager(wager); });
-      B.pay(wager);
+      B.pay(wager).timeout(DEADLINE, () => closeTo(A, informTimeout));
       commit();
 
       C.only(() => {
         interact.acceptWager(wager); });
-      C.pay(wager);
+      C.pay(wager).timeout(DEADLINE, () => {
+        race(A, B).publish();
+        transfer(wager).to(A);
+        transfer(wager).to(B);
+        commit();
+        exit();
+      });
 
       var outcome = DRAW;
       invariant(balance() == 3 * wager && isOutcome(outcome) );
@@ -55,7 +61,13 @@ export const main =
           const _handA = interact.getHand();
           const [_commitA, _saltA] = makeCommitment(interact, _handA);
           const commitA = declassify(_commitA); });
-        A.publish(commitA);
+        A.publish(commitA).timeout(DEADLINE, () => {
+          race(B, C).publish();
+          transfer(balance() / 2).to(B);
+          transfer(balance()).to(C);
+          commit();
+          exit();
+        });
         commit();
 
         unknowable(B, A(_handA, _saltA));
@@ -63,25 +75,49 @@ export const main =
           const _handB = interact.getHand();
           const [_commitB, _saltB] = makeCommitment(interact, _handB);
           const commitB = declassify(_commitB); });
-        B.publish(commitB);
+        B.publish(commitB).timeout(DEADLINE, () => {
+          race(A, C).publish();
+          transfer(balance() / 2).to(A);
+          transfer(balance()).to(C);
+          commit();
+          exit();
+        });
         commit();
 
         unknowable(C, A(_handA, _saltA));
         unknowable(C, B(_handB, _saltB));
         C.only(() => {
           const handC = declassify(interact.getHand()); });
-        C.publish(handC);
+        C.publish(handC).timeout(DEADLINE, () => {
+          race(A, B).publish();
+          transfer(balance() / 2).to(A);
+          transfer(balance()).to(B);
+          commit();
+          exit();
+        });
         commit();
 
         A.only(() => {
           const [saltA, handA] = declassify([_saltA, _handA]); });
-        A.publish(saltA, handA);
+        A.publish(saltA, handA).timeout(DEADLINE, () => {
+          race(B, C).publish();
+          transfer(balance() / 2).to(B);
+          transfer(balance()).to(C);
+          commit();
+          exit();
+        });;
         checkCommitment(commitA, saltA, handA);
         commit();
 
         B.only(() => {
           const [saltB, handB] = declassify([_saltB, _handB]); });
-        B.publish(saltB, handB);
+        B.publish(saltB, handB).timeout(DEADLINE, () => {
+          race(A, C).publish();
+          transfer(balance() / 2).to(A);
+          transfer(balance()).to(C);
+          commit();
+          exit();
+        });
         checkCommitment(commitB, saltB, handB);
 
         outcome = winner(handA, handB, handC);
